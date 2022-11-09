@@ -2,9 +2,9 @@ from pprint import pprint
 import random
 import math
 
-TIMESTAMPS_COUNT = 500
+TIMESTAMPS_COUNT = 50000
 
-PROBABILITY_SCORE_CHANGED = 0.1
+PROBABILITY_SCORE_CHANGED = 0.0001
 
 PROBABILITY_HOME_SCORE = 0.45
 
@@ -51,26 +51,24 @@ pprint(game_stamps)
 
 
 def get_score(game_stamps, offset):
-    # median_offset_increase = (OFFSET_MAX_STEP + 1) / 2
-    #
-    # search_pointer = math.floor(offset / median_offset_increase)
-    # print(search_pointer)
-    # if game_stamps[search_pointer]["offset"] == offset:
-    #     return (game_stamps[search_pointer]["score"]["home"],
-    #             game_stamps[search_pointer]["score"]["away"])
-    # else:
-    #     return game_stamps[search_pointer]
+    if offset <= 0:
+        return (game_stamps[0]["score"]["home"],
+                game_stamps[0]["score"]["away"])
 
-    arr = list(filter(lambda item: (abs(item['offset']-offset) <= OFFSET_MAX_STEP), game_stamps))
-    print(arr)
+    arr = list(filter(lambda item: (abs(item['offset'] - offset) <= OFFSET_MAX_STEP), game_stamps))
+    if not arr:
+        last_item = game_stamps[-1]
+
+        return (last_item["score"]["home"],
+                last_item["score"]["away"])
+
     offset_index = 0
     offset_delta = offset - arr[0]['offset']
+
     for index, item in enumerate(arr):
-        if abs(item['offset']-offset) < offset_delta:
-            offset_delta = abs(item['offset']-offset)
+        if abs(item['offset'] - offset) < offset_delta:
+            offset_delta = abs(item['offset'] - offset)
             offset_index = index
-    return arr[offset_index]
-    # return home, away
 
-
-print(get_score(game_stamps, 990))
+    return (arr[offset_index]["score"]["home"],
+            arr[offset_index]["score"]["away"])
